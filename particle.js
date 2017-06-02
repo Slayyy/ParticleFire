@@ -1,7 +1,8 @@
 var container, stats;
+var controls;
 var camera, scene, renderer, particle;
-var mouseX = 0,
-    mouseY = 0;
+var mouseX = 0;
+var mouseY = 0;
 
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
@@ -9,22 +10,51 @@ var windowHalfY = window.innerHeight / 2;
 init();
 animate();
 
+function initSkybox() {
+    var directions  = ["rt", "lf", "up", "dn", "bk", "ft"];
+    var imageSuffix = ".tga";
+    var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
+    
+
+    var loader = new THREE.TextureLoader();
+    loader.crossOrigin = '';
+
+    var materialArray = [];
+    for (var i = 0; i < 6; i++)
+    	materialArray.push(new THREE.MeshBasicMaterial({
+    		map: loader.load(directions[i] + imageSuffix),
+    		side: THREE.BackSide
+    	}));
+    var skyMaterial = materialArray;
+    var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
+    scene.add(skyBox);
+}
+
 function init() {
 
     container = document.createElement('div');
-    document.body.appendChild(container);
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
-    camera.position.z = 1000;
+    ocument.body.appendChild(container);
 
     scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
+    scene.add(camera);
+    camera.position.set(0,150,400);
+    camera.lookAt(scene.position);
+
+
+
+    initSkybox();
+
+    var axes = new THREE.AxisHelper(100);
+    scene.add( axes )
 
     var material = new THREE.SpriteMaterial({
         map: new THREE.CanvasTexture(generateSprite()),
         blending: THREE.AdditiveBlending
     });
 
-    for (var i = 0; i < 5000; i++) {
+    for (var i = 0; i < 1000; i++) {
 
         particle = new THREE.Sprite(material);
 
@@ -33,34 +63,18 @@ function init() {
         scene.add(particle);
     }
 
-    renderer = new THREE.CanvasRenderer();
-    renderer.setClearColor(0x000000);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
+    renderer.setClearColor(0xFFFFFF);
     renderer.setSize(window.innerWidth, window.innerHeight);
+
     container.appendChild(renderer.domElement);
 
     stats = new Stats();
     container.appendChild(stats.dom);
 
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
-    document.addEventListener('touchstart', onDocumentTouchStart, false);
-    document.addEventListener('touchmove', onDocumentTouchMove, false);
+    THREEx.WindowResize(renderer, camera);
+    controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-    //
-
-    window.addEventListener('resize', onWindowResize, false);
-
-}
-
-function onWindowResize() {
-
-    windowHalfX = window.innerWidth / 2;
-    windowHalfY = window.innerHeight / 2;
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
 
@@ -73,8 +87,7 @@ function generateSprite() {
     var context = canvas.getContext('2d');
     var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
     gradient.addColorStop(0, 'rgba(255,0,0,1)');
-    gradient.addColorStop(0.2, 'rgba(255,40,0,1)');
-    gradient.addColorStop(0.4, 'rgba(255,100,0,1)');
+    gradient.addColorStop(0.5, 'rgba(255,40,0,1)');
     gradient.addColorStop(1, 'rgba(0,0,0,1)');
 
     context.fillStyle = gradient;
@@ -94,16 +107,16 @@ function initParticle(particle, delay) {
 
     new TWEEN.Tween(particle)
         .delay(delay)
-        .to({}, 10000)
+        .to({}, 7000)
         .onComplete(initParticle)
         .start();
 
     new TWEEN.Tween(particle.position)
         .delay(delay)
         .to({
-            x: Math.random() * 250  - 125 ,
-            y: Math.random() * 3000 - 200 ,
-            z: Math.random() * 250 - 125
+            x: Math.random() * 100  - 50 ,
+            y: Math.random() * 1000 - 10 ,
+            z: Math.random() * 100 - 50
         }, 10000)
         .start();
 
@@ -112,64 +125,23 @@ function initParticle(particle, delay) {
         .to({
             x: 0.01,
             y: 0.01
-        }, 5000)
+        }, 10000)
         .start();
 
 }
 
-//
-
-function onDocumentMouseMove(event) {
-
-    mouseX = event.clientX - windowHalfX;
-    mouseY = event.clientY - windowHalfY;
-}
-
-function onDocumentTouchStart(event) {
-
-    if (event.touches.length == 1) {
-
-        event.preventDefault();
-
-        mouseX = event.touches[0].pageX - windowHalfX;
-        mouseY = event.touches[0].pageY - windowHalfY;
-
-    }
-
-}
-
-function onDocumentTouchMove(event) {
-
-    if (event.touches.length == 1) {
-
-        event.preventDefault();
-
-        mouseX = event.touches[0].pageX - windowHalfX;
-        mouseY = event.touches[0].pageY - windowHalfY;
-
-    }
-
-}
-
-//
-
 function animate() {
-
     requestAnimationFrame(animate);
 
     render();
-    stats.update();
+    update();
+}
 
+function update() {
+    stats.update();
 }
 
 function render() {
-
     TWEEN.update();
-
-    camera.position.x += (mouseX - camera.position.x) * 0.05;
-    camera.position.y += (-mouseY - camera.position.y) * 0.05;
-    camera.lookAt(scene.position);
-
     renderer.render(scene, camera);
-
 }
