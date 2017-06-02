@@ -11,6 +11,7 @@ init();
 animate();
 
 function initSkybox() {
+    var prefix = "images/"
     var directions  = ["rt", "lf", "up", "dn", "bk", "ft"];
     var imageSuffix = ".tga";
     var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
@@ -22,7 +23,7 @@ function initSkybox() {
     var materialArray = [];
     for (var i = 0; i < 6; i++)
     	materialArray.push(new THREE.MeshBasicMaterial({
-    		map: loader.load(directions[i] + imageSuffix),
+    		map: loader.load(prefix + directions[i] + imageSuffix),
     		side: THREE.BackSide
     	}));
     var skyMaterial = materialArray;
@@ -33,7 +34,7 @@ function initSkybox() {
 function init() {
 
     container = document.createElement('div');
-    ocument.body.appendChild(container);
+    document.body.appendChild(container);
 
     scene = new THREE.Scene();
 
