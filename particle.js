@@ -13,7 +13,7 @@ animate();
 function initSkybox() {
     var prefix = "images/"
     var directions  = ["rt", "lf", "up", "dn", "bk", "ft"];
-    var imageSuffix = ".tga";
+    var imageSuffix = ".png";
     var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
     
 
