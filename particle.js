@@ -4,6 +4,9 @@ var camera, scene, renderer, particle;
 var mouseX = 0;
 var mouseY = 0;
 
+var loader = new THREE.TextureLoader();
+loader.crossOrigin = '';
+
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
@@ -15,10 +18,6 @@ function initSkybox() {
     var directions  = ["rt", "lf", "up", "dn", "bk", "ft"];
     var imageSuffix = ".png";
     var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
-    
-
-    var loader = new THREE.TextureLoader();
-    loader.crossOrigin = '';
 
     var materialArray = [];
     for (var i = 0; i < 6; i++)
@@ -51,15 +50,15 @@ function init() {
     scene.add( axes )
 
     var material = new THREE.SpriteMaterial({
-        map: new THREE.CanvasTexture(generateSprite()),
+        map: loader.load("images/smoke.png"),
         blending: THREE.AdditiveBlending
     });
 
-    for (var i = 0; i < 1000; i++) {
+    for (var i = 0; i < 2000; i++) {
 
         particle = new THREE.Sprite(material);
 
-        initParticle(particle, i * 10);
+        initParticle(particle, Math.random() * 30);
 
         scene.add(particle);
     }
@@ -121,13 +120,13 @@ function initParticle(particle, delay) {
         }, 10000)
         .start();
 
-    new TWEEN.Tween(particle.scale)
-        .delay(delay)
-        .to({
-            x: 0.01,
-            y: 0.01
-        }, 10000)
-        .start();
+   // new TWEEN.Tween(particle.scale)
+   //     .delay(delay)
+   //     .to({
+   //         x: 0.01,
+   //         y: 0.01
+   //     }, 10000)
+   //     .start();
 
 }
 
